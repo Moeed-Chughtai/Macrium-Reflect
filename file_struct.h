@@ -2,6 +2,16 @@
 #include <cstdint>
 #include "enums.h"
 
+#pragma pack(push, 1)   //Needed to prevent data_block from being padded to 32 bytes
+
+struct data_block
+{
+	int64_t  file_position;
+	uint8_t  md5_hash[16];
+	uint32_t block_length;
+	uint16_t file_number;
+};
+
 namespace file_structs
 {
     namespace Partition
@@ -72,13 +82,14 @@ namespace file_structs
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Table_Entry, boot_sector, end_cylinder, end_head, num_sectors, partition_type, 
             start_cylinder, start_head, status, type)
         
-
         struct Partition_Layout
         {
             File_System _file_system;
             Geometry _geometry;
             Header _header;
             Table_Entry _partition_table_entry;
+            
+            std::vector<data_block> data_blocks;
         };
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Partition_Layout, _file_system, _geometry, _header, _partition_table_entry)
     };
@@ -122,6 +133,8 @@ namespace file_structs
             Geometry _geometry;
             Header _header;
             std::vector<Partition::Partition_Layout> partitions;
+
+            std::vector <uint8_t>  track0;
         };
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Disk_Layout, _descriptor, _geometry, _header, partitions)
     };
@@ -166,6 +179,7 @@ namespace file_structs
         Encryption _encryption;
         Header _header;
         std::vector<Disk::Disk_Layout> disks;
+
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(File_Layout, _compression, _encryption, _header, disks)
 }
