@@ -101,9 +101,10 @@ void readBackupFile(std::string backupFileName)
 
     // std::cout << strJson << std::endl;
 
-    std::cout << json["/disks/0/_geometry/bytes_per_sector"_json_pointer];
+    // std::cout << json["/disks/0/_geometry/bytes_per_sector"_json_pointer] << std::endl;
 
-    file_structs::FileLayout layout = json;
+    file_structs::File_Layout layout = json;
+    // std::cout << layout.disks[0]._geometry.bytes_per_sector << std::endl;
 }
 
 int main(int argc, char *argv[])

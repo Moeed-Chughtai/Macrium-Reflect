@@ -26,7 +26,7 @@ namespace file_structs
             std::string volume_label;
         };
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(File_System, type, mft_offset, mft_record_size, drive_letter, end, start, free_clusters, lcn0_offset,
-                                                        reserved_sectors_byte_length, sectors_per_cluster, total_clusters, volume_guid, volume_label, lcn0_file_number, bitlocker_state, partition_index, shadow_copy);
+            sectors_per_cluster, total_clusters, volume_guid, volume_label, lcn0_file_number, bitlocker_state, partition_index, shadow_copy);
 
         struct Geometry
         {
@@ -35,23 +35,26 @@ namespace file_structs
             uint64_t length;
             uint64_t start;
         };
-        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(PartitionGeometry, start, end, length, boot_sector_offset)
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Geometry, start, end, length, boot_sector_offset)
 
-        struct FileHistory
+        struct File_History
         {
             std::string file_name;
             int32_t file_number;
         };
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(File_History, file_name, file_number)
 
         struct Header
         {
             uint32_t block_count;
             uint32_t block_size;
-            std::vector<FileHistory> file_history;
+            std::vector<File_History> file_history;
             uint32_t file_history_count;
             uint64_t partition_file_offset;
             int32_t partition_number;
         };
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Header, block_count, block_size, file_history, file_history_count,
+             partition_file_offset, partition_number)
 
         struct Table_Entry
         {
@@ -66,6 +69,9 @@ namespace file_structs
             uint8_t status;
             uint8_t type;
         };
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Table_Entry, boot_sector, end_cylinder, end_head, num_sectors, partition_type, 
+            start_cylinder, start_head, status, type)
+        
 
         struct Partition_Layout
         {
@@ -74,6 +80,7 @@ namespace file_structs
             Header _header;
             Table_Entry _partition_table_entry;
         };
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Partition_Layout, _file_system, _geometry, _header, _partition_table_entry)
     };
 
     namespace Disk
@@ -86,6 +93,7 @@ namespace file_structs
             std::string disk_revisonno;
             std::string disk_serialno;
         };
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Descriptor, disk_description, disk_manufacturer, disk_productid, disk_revisonno, disk_serialno)
 
         struct Geometry
         {
@@ -96,6 +104,8 @@ namespace file_structs
             uint32_t sectors_per_track;
             uint32_t tracks_per_cylinder;
         };
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Geometry, bytes_per_sector, cylinders, disk_size, media_type, sectors_per_track,
+            tracks_per_cylinder)
 
         struct Header
         {
@@ -104,14 +114,16 @@ namespace file_structs
             std::string disk_signature;
             int32_t imaged_partition_count;
         };
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Header, disk_format, disk_number, disk_signature, imaged_partition_count)
 
-        struct DiskLayout
+        struct Disk_Layout
         {
             Descriptor _descriptor;
             Geometry _geometry;
             Header _header;
             std::vector<Partition::Partition_Layout> partitions;
         };
+        NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Disk_Layout, _descriptor, _geometry, _header, partitions)
     };
 
     struct Header
@@ -131,24 +143,29 @@ namespace file_structs
         std::string netbios_name;
         bool split_file;
     };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Header, backup_format, backup_guid, backup_time, backup_type, backupset_time, delta_index,
+        file_number, imaged_disks_count, imageid, increment_number, index_file_position, json_version, netbios_name, split_file)
 
     struct Compression
     {
         std::string compression_level;
         std::string compression_method;
     };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Compression, compression_level, compression_method)
 
     struct Encryption
     {
         bool enable;
         uint32_t key_iterations;
     };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Encryption, enable, key_iterations)
 
-    struct FileLayout
+    struct File_Layout
     {
-        Compression compression;
-        Encryption encryption;
-        Header header;
-        std::vector<Disk::DiskLayout> disks;
+        Compression _compression;
+        Encryption _encryption;
+        Header _header;
+        std::vector<Disk::Disk_Layout> disks;
     };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(File_Layout, _compression, _encryption, _header, disks)
 }
