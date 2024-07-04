@@ -2,35 +2,39 @@
 #include <fstream>
 #include "metadata.h"
 #include <string.h>
+#include <memory>
 
-
-void readFile(std::fstream& file, void* buffer, std::streamsize bytesToRead)
+void readFile(std::fstream &file, void *buffer, std::streamsize bytesToRead)
 {
-    file.read(reinterpret_cast<char*>(buffer), bytesToRead);
-    if (file.fail()) {
+    file.read(static_cast<char *>(buffer), bytesToRead);
+    if (file.fail())
+    {
+        std::cout << file.eofbit << std::endl;
         throw std::runtime_error("Failed to read file.");
     }
 }
 
-void readFooterData(uint64_t& headerOffset, uint8_t magicBytes[], std::fstream& file)
+void readFooterData(uint64_t &headerOffset, uint8_t magicBytes[], std::fstream &file)
 {
     readFile(file, &headerOffset, sizeof(headerOffset));
+    std::cout << sizeof(headerOffset) << std::endl;
     readFile(file, magicBytes, MAGIC_BYTES_VX_SIZE);
 }
 
 std::streamoff calculateFooterOffset()
 {
     constexpr int64_t magicBytesSize = static_cast<signed int>(MAGIC_BYTES_VX_SIZE);
-	constexpr int64_t int64_tSize = static_cast<signed int>(sizeof(int64_t));
-	constexpr int64_t offset = -((int64_t)magicBytesSize + int64_tSize);
-	std::streamoff fileOffset = offset;
+    constexpr int64_t int64_tSize = static_cast<signed int>(sizeof(int64_t));
+    constexpr int64_t offset = -((int64_t)magicBytesSize + int64_tSize);
+    std::streamoff fileOffset = offset;
     return fileOffset;
 }
 
-void setFilePointer(std::fstream& file, std::streamoff offset, std::ios_base::seekdir base)
+void setFilePointer(std::fstream &file, std::streamoff offset, std::ios_base::seekdir base)
 {
     file.seekg(offset, base);
-    if (file.fail()) {
+    if (file.fail())
+    {
         throw std::runtime_error("Failed to set file pointer.");
     }
 }
@@ -42,37 +46,37 @@ std::fstream openFile(std::string fileName)
     return file;
 }
 
-unsigned char* readMetadataBlock(std::fstream& file, MetadataBlockHeader& header) {
+std::unique_ptr<unsigned char[]> readMetadataBlock(std::fstream &file, MetadataBlockHeader &header)
+{
 
-    unsigned char blockData[header.BlockLength];
+    std::unique_ptr<unsigned char[]> blockData = std::make_unique<unsigned char[]>(header.BlockLength);
 
-    setFilePointer(file, sizeof(header), std::ios::cur);
-    readFile(file, blockData, header.BlockLength);
+    readFile(file, blockData.get(), header.BlockLength);
     return blockData;
 }
 
-std::string getJSON(std::fstream& file) {
+std::string getJSON(std::fstream &file)
+{
     MetadataBlockHeader header;
     std::string strJson;
 
-    do {
+    do
+    {
         readFile(file, &header, sizeof(header));
 
-        if (memcmp(header.BlockName, JSON_HEADER, BLOCK_NAME_LENGTH) == 0) {
+        if (memcmp(header.BlockName, JSON_HEADER, BLOCK_NAME_LENGTH) == 0)
+        {
 
             std::cout << "Found JSON" << std::endl;
-            
+
             auto blockData = readMetadataBlock(file, header);
 
-
-            strJson = std::string(reinterpret_cast<char*>(blockData), header.BlockLength);
-
-            std::cout << strJson << std::endl;
-
+            strJson.assign(reinterpret_cast<const char *>(blockData.get()), header.BlockLength);
         }
-        else {
+        else
+        {
             setFilePointer(file, header.BlockLength + sizeof(header), std::ios::cur);
-        }   
+        }
     }
 
     while (header.Flags.LastBlock == 0);
@@ -89,11 +93,6 @@ void readBackupFile(std::string backupFileName)
     uint8_t magicBytes[MAGIC_BYTES_VX_SIZE];
 
     readFooterData(headerOffset, magicBytes, file);
-    std::cout << "Header offset: " << magicBytes << std::endl;
-    for (int i=0; i<MAGIC_BYTES_VX_SIZE; i++) {
-        std::cout << magicBytes[i];
-    }
-
     setFilePointer(file, headerOffset, std::ios::beg);
 
     std::string strJson = getJSON(file);
@@ -101,9 +100,8 @@ void readBackupFile(std::string backupFileName)
     std::cout << strJson << std::endl;
 }
 
-int main(int argc, char* argv[]) 
+int main(int argc, char *argv[])
 {
-    std::string backupFileName = "A24A50EE7667020C-demo-00-00.mrimg";
+    std::string backupFileName = "4CB8A10DEAE082C4-testbackup-00-00.mrimg";
     readBackupFile(backupFileName);
-
 }
