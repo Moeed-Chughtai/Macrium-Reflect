@@ -1,0 +1,174 @@
+{
+    "_auxiliary_data": {
+        "backup_definition": {
+            "auto_verify": false,
+            "backup_definition_file": "C:\\Users\\adamp\\OneDrive\\Documents\\Reflect\\My Backup.xml",
+            "backup_format": "partition",
+            "check_filesystem": true,
+            "comment": "",
+            "compression_level": "none",
+            "consolidation_type": "none",
+            "cpu_priority": "below_normal",
+            "disk_space_management": {
+                "apply_to_all_sets_in_folder": false,
+                "differential_retention": {
+                    "enable": false
+                },
+                "full_retention": {
+                    "enable": true,
+                    "interval": 12,
+                    "period": "count"
+                },
+                "incremental_retention": {
+                    "enable": false
+                },
+                "incrementals_forever": false,
+                "low_space_gb_threshold": 5,
+                "low_space_purge": true,
+                "run_before": false
+            },
+            "disks": [
+                {
+                    "number": 1,
+                    "partitions": [
+                        0
+                    ],
+                    "signature": "056FF1CA"
+                }
+            ],
+            "file_type": "image",
+            "filename": "C:\\Users\\adamp\\Documents\\Programming\\Macrium\\4CB8A10DEAE082C4-testbackup-00-00.mrimg",
+            "filename_template": "testbackup",
+            "intelligent_sector_copy": true,
+            "limit_file_size": false,
+            "post_backup_shutdown": {
+                "enable": false
+            },
+            "prefix_unique": true
+        },
+        "bootable": false,
+        "destination": "C:\\Users\\adamp\\Documents\\Programming\\Macrium\\4CB8A10DEAE082C4-testbackup-00-00.mrimg",
+        "highest_file_offset": 0,
+        "macrium_reflect": {
+            "build": 8102,
+            "file_version": 10,
+            "major": 10,
+            "minor": 0
+        },
+        "target_drive_type": "local",
+        "third_party_software_version_list": [
+            {
+                "name_and_version": "OpenSSL 3.1.3"
+            },
+            {
+                "name_and_version": "nlohmann json 3.11.3"
+            },
+            {
+                "name_and_version": "Zstd 1.5.5"
+            }
+        ],
+        "unique_prefix_type": "imageid"
+    },
+    "_compression": {
+        "compression_level": "none",
+        "compression_method": "zstd"
+    },
+    "_encryption": {
+        "enable": false,
+        "key_iterations": 0
+    },
+    "_header": {
+        "backup_format": "partition",
+        "backup_guid": "8814b0d8-08b9-4c53-8c33-09ee54d73ea0",
+        "backup_time": 1720008660,
+        "backup_type": "full",
+        "backupset_time": 1720008660,
+        "delta_index": false,
+        "file_number": 0,
+        "imaged_disks_count": 1,
+        "imageid": "4CB8A10DEAE082C4",
+        "increment_number": 0,
+        "index_file_position": 22347776,
+        "json_version": 1,
+        "netbios_name": "DESKTOP-3V0H6OA",
+        "split_file": false
+    },
+    "disks": [
+        {
+            "_descriptor": {
+                "disk_description": "Msft     Virtual Disk     1.0",
+                "disk_manufacturer": "Msft    ",
+                "disk_productid": "Virtual Disk    ",
+                "disk_revisonno": "1.0 ",
+                "disk_serialno": ""
+            },
+            "_geometry": {
+                "bytes_per_sector": 512,
+                "cylinders": 130,
+                "disk_size": 1073741824,
+                "media_type": "fixed_media",
+                "sectors_per_track": 63,
+                "tracks_per_cylinder": 255
+            },
+            "_header": {
+                "disk_format": "mbr",
+                "disk_number": 1,
+                "disk_signature": "056FF1CA",
+                "imaged_partition_count": 1
+            },
+            "partitions": [
+                {
+                    "_file_system": {
+                        "bitlocker_state": "none",
+                        "drive_letter": 68,
+                        "end": 1070661631,
+                        "free_clusters": 255979,
+                        "lcn0_file_number": 0,
+                        "lcn0_offset": 65536,
+                        "mft_offset": 356929536,
+                        "mft_record_size": 1024,
+                        "partition_index": 0,
+                        "sectors_per_cluster": 8,
+                        "shadow_copy": "\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy1",
+                        "start": 65536,
+                        "total_clusters": 261376,
+                        "type": "NTFS",
+                        "volume_guid": "\\??\\Volume{056ff1ca-0000-0000-0000-010000000000}",
+                        "volume_label": "New Volume"
+                    },
+                    "_geometry": {
+                        "boot_sector_offset": 0,
+                        "end": 1070661631,
+                        "length": 1070596096,
+                        "start": 65536
+                    },
+                    "_header": {
+                        "block_count": 16336,
+                        "block_size": 65536,
+                        "file_history": [
+                            {
+                                "file_name": "C:\\Users\\adamp\\Documents\\Programming\\Macrium\\4CB8A10DEAE082C4-testbackup-00-00.mrimg",
+                                "file_number": 0
+                            }
+                        ],
+                        "file_history_count": 1,
+                        "partition_file_offset": 0,
+                        "partition_number": 0
+                    },
+                    "_partition_table_entry": {
+                        "active": false,
+                        "boot_sector": 128,
+                        "end_cylinder": 33087,
+                        "end_head": 254,
+                        "num_sectors": 2091008,
+                        "partition_type": "primary",
+                        "start_cylinder": 3,
+                        "start_head": 2,
+                        "status": 0,
+                        "type": 7
+                    }
+                }
+            ]
+        }
+    ]
+}

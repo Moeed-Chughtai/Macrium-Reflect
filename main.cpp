@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "metadata.h"
-#include <string.h>
+#include "file_struct.h"
 #include <memory>
 
 void readFile(std::fstream &file, void *buffer, std::streamsize bytesToRead)
@@ -97,7 +97,13 @@ void readBackupFile(std::string backupFileName)
 
     std::string strJson = getJSON(file);
 
-    std::cout << strJson << std::endl;
+    nlohmann::json json = nlohmann::json::parse(strJson);
+
+    // std::cout << strJson << std::endl;
+
+    std::cout << json["/disks/0/_geometry/bytes_per_sector"_json_pointer];
+
+    file_structs::FileLayout layout = json;
 }
 
 int main(int argc, char *argv[])
