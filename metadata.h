@@ -20,11 +20,12 @@ struct MetadataBlockHeader
     char Padding[3] = {0};
 };
 
-const char *const JSON_HEADER = "$JSON   ";   // File header JSON data
-const char *const BITMAP_HEADER = "$BITMAP "; // Partition data
-const char *const FAT_HEADER = "$FAT    ";    // FAT32 FAT data
-const char *const CBT_HEADER = "$CBT    ";    // Changed Block Tracking data
-const char *const MFT_HEADER = "$MFT    ";    // Master File Table data
-const char *const TRACK_0 = "$TRACK0 ";       // 1st 1MB of data on the disk
-const char *const EXT_PAR_TABLE = "$EPT    "; // Extended Partition Table data
-#define BLOCK_NAME_LENGTH 8
+const char* const JSON_HEADER   = "$JSON   ";  // File header JSON data
+const char* const BITMAP_HEADER = "$BITMAP ";  // Partition data
+const char* const FAT_HEADER    = "$FAT    ";  // FAT32 FAT data
+const char* const CBT_HEADER    = "$CBT    ";  // Changed Block Tracking data
+const char* const MFT_HEADER    = "$MFT    ";  // Master File Table data
+const char* const TRACK_0       = "$TRACK0 ";  // 1st 1MB of data on the disk
+const char* const IDX_HEADER    = "$INDEX  ";  // Reserved sectors and data block index
+const char* const EXT_PAR_TABLE = "$EPT    ";  // Extended Partition Table data
+#define BLOCK_NAME_LENGTH 8                    // Length of block name strings

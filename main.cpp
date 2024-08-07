@@ -54,17 +54,28 @@ std::unique_ptr<unsigned char[]> readMetadataBlock(std::fstream& file, MetadataB
     return blockData;
 }
 
-void skipBitmap(std::fstream& file)
+// Skips metadata block containing the bitmap and the header of the index metadata block
+// File pointer (should be) left at the start of the data block index
+void skipPartitionMetadata(std::fstream& file)
 {
     MetadataBlockHeader header;
     
     do {
         readFile(file, &header, sizeof(header));
-        setFilePointer(file, header.BlockLength, std::ios::cur);
+
+        if (memcmp(header.BlockName, BITMAP_HEADER, BLOCK_NAME_LENGTH) == 0) 
+        {
+            setFilePointer(file, header.BlockLength, std::ios::cur);
+        }
+        else if (memcmp(header.BlockName, IDX_HEADER, BLOCK_NAME_LENGTH) == 0)
+        {
+            std::cout << "Index header found" << std::endl;
+        }
     } 
     while (header.Flags.LastBlock == 0);
 }
 
+// Find and return as a string the JSON of the entire backup file
 std::string getJSON(std::fstream& file)
 {
     MetadataBlockHeader header;
@@ -117,13 +128,11 @@ void readDataBlockIndex(std::fstream& file, file_structs::File_Layout fileLayout
         readDiskMetadata(file, fileLayout, disk);
 
         for (auto& partition : disk.partitions) {
-            skipBitmap(file);
-            
+            skipPartitionMetadata(file);    //skip over bitmap block and index header
+
             int32_t blockCount;
-            setFilePointer(file, sizeof(blockCount), std::ios::cur); // Skipping blockcount for reserved sectors (FAT32 only)
+            setFilePointer(file, sizeof(blockCount), std::ios::cur); // Skipping blockcount for reserved sectors (FAT32 only), will be 0 for non-fat32 anyways
             readFile(file, &blockCount, sizeof(blockCount));
-            std::cout << blockCount << std::endl;
-            std::cout << sizeof(data_block) << std::endl;
             partition.data_blocks.resize(blockCount);
             readFile(file, partition.data_blocks.data(), blockCount * sizeof(data_block));
 
@@ -147,18 +156,14 @@ void readBackupFile(std::string backupFileName)
 
     nlohmann::json json = nlohmann::json::parse(strJson);
 
-    // std::cout << strJson << std::endl;
-
-    // std::cout << json["/disks/0/_geometry/bytes_per_sector"_json_pointer] << std::endl;
 
     file_structs::File_Layout layout = json;
-    // std::cout << layout.disks[0]._geometry.bytes_per_sector << std::endl;
 
     readDataBlockIndex(file, layout);
 }
 
 int main(int argc, char* argv[])
 {
-    std::string backupFileName = "4CB8A10DEAE082C4-testbackup-00-00.mrimg";
+    std::string backupFileName = "515CE701D2BB4A22-TestMBR-SP-NC-NE-00-00.mrimg";
     readBackupFile(backupFileName);
 }
