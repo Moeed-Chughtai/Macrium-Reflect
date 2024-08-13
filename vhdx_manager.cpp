@@ -1,7 +1,7 @@
 // #define _WIN32_WINNT 0x0A00
 
 
-// #include <iostream>
+#include <iostream>
 
 // #include <filesystem>
 // #include "vhdx_manager.h"
@@ -45,5 +45,6 @@
 
 int Apple()
 {
-    return 5;
+    std::cout << "Apple" << std::endl;
+    return 0;
 }
