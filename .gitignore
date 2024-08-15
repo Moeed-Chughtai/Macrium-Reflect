@@ -1,4 +1,8 @@
 /.vscode/
+/bazel-bin/
+/bazel-macrium_reflect/
+/bazel-out/
+/bazel-testlogs/
 
 *.exe
 *.ilk

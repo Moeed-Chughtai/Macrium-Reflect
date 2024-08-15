@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string.h>
 #include <cstdint>
 #include "enums.h"
@@ -183,3 +185,5 @@ namespace file_structs
     };
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(File_Layout, _compression, _encryption, _header, disks)
 }
+
+#pragma pack(pop)

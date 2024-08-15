@@ -6,4 +6,3 @@
 #include <string>
 
 void CreateVHDX(std::wstring path, ULONGLONG size, ULONG sectorSize);
-int Apple();

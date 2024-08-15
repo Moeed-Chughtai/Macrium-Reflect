@@ -11,7 +11,7 @@
  * This allows for easy serialization and deserialization of these values when reading from or writing to a backup file.
  */
 
-#include "dependencies\include\nlohmann\json.hpp"
+#include "../../dependencies/include/nlohmann/json.hpp"
 
 namespace ImageEnums
 {
