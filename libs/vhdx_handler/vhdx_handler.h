@@ -6,3 +6,5 @@
 #include <string>
 
 void CreateVHDX(std::wstring path, ULONGLONG size, ULONG sectorSize);
+
+void MountVHDX(std::wstring path);

@@ -13,30 +13,81 @@ EXTERN_C const GUID DECLSPEC_SELECTANY VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT =
 
 void CreateVHDX(std::wstring path, ULONGLONG size, ULONG sectorSize)
 {
-    CREATE_VIRTUAL_DISK_PARAMETERS create_params;
-    ZeroMemory(&create_params, sizeof(create_params));
-    create_params.Version = CREATE_VIRTUAL_DISK_VERSION_2;
-    create_params.Version2.MaximumSize = size;
-    create_params.Version2.BlockSizeInBytes = 0;
-    create_params.Version2.SectorSizeInBytes = sectorSize;
-    create_params.Version2.PhysicalSectorSizeInBytes = sectorSize;
+    CREATE_VIRTUAL_DISK_PARAMETERS createParams;
+    ZeroMemory(&createParams, sizeof(createParams));
+    createParams.Version = CREATE_VIRTUAL_DISK_VERSION_2;
+    createParams.Version2.MaximumSize = size;
+    createParams.Version2.BlockSizeInBytes = 0;
+    createParams.Version2.SectorSizeInBytes = sectorSize;
+    createParams.Version2.PhysicalSectorSizeInBytes = sectorSize;
 
-    VIRTUAL_STORAGE_TYPE storage_type = {};
-    storage_type.DeviceId = VIRTUAL_STORAGE_TYPE_DEVICE_VHDX;
-    storage_type.VendorId = VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT;
+    VIRTUAL_STORAGE_TYPE storageType = {};
+    storageType.DeviceId = VIRTUAL_STORAGE_TYPE_DEVICE_VHDX;
+    storageType.VendorId = VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT;
 
     HANDLE vhdxHandle = NULL;
 
     auto res = CreateVirtualDisk(
-        &storage_type,
+        &storageType,
         path.data(),
         VIRTUAL_DISK_ACCESS_NONE,
         NULL,
         CREATE_VIRTUAL_DISK_FLAG_NONE,
         0,
-        &create_params,
+        &createParams,
         NULL,
         &vhdxHandle
     );
+}
+
+void MountVHDX(std::wstring path)
+{
+    HANDLE vhdxHandle;
+
+    VIRTUAL_STORAGE_TYPE storageType = {};
+    storageType.DeviceId = VIRTUAL_STORAGE_TYPE_DEVICE_VHDX;
+    storageType.VendorId = VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT;
+
+    OPEN_VIRTUAL_DISK_PARAMETERS openParams;
+    ZeroMemory(&openParams, sizeof(openParams));
+    openParams.Version = OPEN_VIRTUAL_DISK_VERSION_2;
+    openParams.Version2.GetInfoOnly = FALSE;
+
+    auto openRes = OpenVirtualDisk(
+        &storageType,
+        path.data(),
+        VIRTUAL_DISK_ACCESS_NONE,
+        OPEN_VIRTUAL_DISK_FLAG_NO_PARENTS,
+        &openParams,
+        &vhdxHandle
+    );
+
+    std::cout << openRes << std::endl;
+    if (vhdxHandle == INVALID_HANDLE_VALUE) {
+        std::cout << "Invalid handle" << std::endl;
+    }
+
+    ATTACH_VIRTUAL_DISK_PARAMETERS attachParams;
+    ZeroMemory(&attachParams, sizeof(attachParams));
+    attachParams.Version = ATTACH_VIRTUAL_DISK_VERSION_1;
+
+    auto attachRes = AttachVirtualDisk(
+        vhdxHandle,
+        NULL,
+        ATTACH_VIRTUAL_DISK_FLAG_NONE,
+        0,
+        &attachParams,
+        NULL
+    );
+
+    std::cout << attachRes << std::endl;
+    
+    std::wstring diskPath;
+    diskPath.resize(MAX_PATH);
+    ULONG diskPathSize = MAX_PATH;
+    auto pathRes = GetVirtualDiskPhysicalPath(vhdxHandle, &diskPathSize, &diskPath[0]);
+    std::wcout << diskPath << std::endl;
+    int x;
+    std::cin >> x;
 }
 
