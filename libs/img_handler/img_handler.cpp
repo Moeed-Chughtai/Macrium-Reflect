@@ -129,8 +129,6 @@ void readBackupFileLayout(file_structs::File_Layout& layout, std::string backupF
 
     std::string strJson = getJSON(file);
 
-    std::cout << strJson << std::endl;
-
     nlohmann::json json = nlohmann::json::parse(strJson);
     layout = json;
 

@@ -7,4 +7,6 @@
 
 void CreateVHDX(std::wstring path, ULONGLONG size, ULONG sectorSize);
 
-void MountVHDX(std::wstring path);
+void MountVHDX(std::wstring path, std::wstring& diskPath);
+
+void UpdateDiskProperties(std::wstring diskPath);

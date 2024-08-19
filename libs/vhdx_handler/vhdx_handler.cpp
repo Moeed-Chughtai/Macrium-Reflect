@@ -1,7 +1,9 @@
 #include <iostream>
-
 #include <filesystem>
 #include "vhdx_handler.h"
+#include <winioctl.h>
+#include <memory>
+#include <objbase.h>
 #include <virtdisk.h>
 
 // https://learn.microsoft.com/en-us/windows/win32/api/virtdisk/nf-virtdisk-createvirtualdisk
@@ -13,11 +15,15 @@ EXTERN_C const GUID DECLSPEC_SELECTANY VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT =
 
 void CreateVHDX(std::wstring path, ULONGLONG size, ULONG sectorSize)
 {
+    if (size % sectorSize != 0) {
+        size = ((size / sectorSize) + 1) * sectorSize;
+    }
+
     CREATE_VIRTUAL_DISK_PARAMETERS createParams;
     ZeroMemory(&createParams, sizeof(createParams));
     createParams.Version = CREATE_VIRTUAL_DISK_VERSION_2;
     createParams.Version2.MaximumSize = size;
-    createParams.Version2.BlockSizeInBytes = 0;
+    createParams.Version2.BlockSizeInBytes = CREATE_VIRTUAL_DISK_PARAMETERS_DEFAULT_BLOCK_SIZE;
     createParams.Version2.SectorSizeInBytes = sectorSize;
     createParams.Version2.PhysicalSectorSizeInBytes = sectorSize;
 
@@ -40,7 +46,7 @@ void CreateVHDX(std::wstring path, ULONGLONG size, ULONG sectorSize)
     );
 }
 
-void MountVHDX(std::wstring path)
+void MountVHDX(std::wstring path, std::wstring& diskPath)
 {
     HANDLE vhdxHandle;
 
@@ -82,12 +88,32 @@ void MountVHDX(std::wstring path)
 
     std::cout << attachRes << std::endl;
     
-    std::wstring diskPath;
     diskPath.resize(MAX_PATH);
     ULONG diskPathSize = MAX_PATH;
     auto pathRes = GetVirtualDiskPhysicalPath(vhdxHandle, &diskPathSize, &diskPath[0]);
-    std::wcout << diskPath << std::endl;
-    int x;
-    std::cin >> x;
+    std::wcout << L"Mount function path: " << diskPath << std::endl;
 }
 
+void UpdateDiskProperties(std::wstring diskPath)
+{
+    // Initialize a variable to receive the number of bytes returned by DeviceIoControl.
+    DWORD bytesWritten = 0;
+
+    // Open the target disk for read/write access.
+    HANDLE targetDiskHandle = CreateFileW(diskPath.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    
+    // Send the IOCTL_DISK_UPDATE_PROPERTIES control code to the disk device driver.
+    // This control code does not require any input data or output data.
+    if (!DeviceIoControl(targetDiskHandle, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &bytesWritten, NULL))
+    {
+        // If DeviceIoControl fails, close the handle to the target disk and throw a runtime_error.
+        CloseHandle(targetDiskHandle);
+        std::cout << "Failed to update disk properties" << std::endl;
+        throw std::runtime_error("Failed to update disk properties.");
+    }
+
+    std::cout << bytesWritten << std::endl;
+
+    // Close the handle to the target disk.
+    CloseHandle(targetDiskHandle);
+}

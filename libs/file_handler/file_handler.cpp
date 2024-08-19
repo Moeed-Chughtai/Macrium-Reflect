@@ -27,8 +27,18 @@ std::fstream openFile(std::string fileName)
     file.open(fileName, std::ios::in | std::ios::out | std::ios::binary);
     if (file.fail())
     {
-        std::cout << "Failed to open file" << std::endl;
+        std::cout << "Failed to open file: " + fileName << std::endl;
         throw std::runtime_error("Failed to open file.");
     }
     return file;
+}
+
+void writeToFile(std::fstream& file, void* buffer, std::streamsize bytesToWrite)
+{
+    file.write(static_cast<char*>(buffer), bytesToWrite);
+    if (file.fail())
+    {
+        if (file.eof()) {std::cout << "End of file reached" << std::endl;}
+        throw std::runtime_error("Failed to write to file.");
+    }
 }
