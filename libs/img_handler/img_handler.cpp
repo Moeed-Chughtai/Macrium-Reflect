@@ -16,7 +16,6 @@ std::streamoff calculateFooterOffset()
     constexpr int64_t int64_tSize = static_cast<signed int>(sizeof(int64_t));
     constexpr int64_t offset = -((int64_t)magicBytesSize + int64_tSize);
     std::streamoff fileOffset = offset;
-    std::cout << "Footer offset calculated" << std::endl;
     return fileOffset;
 }
 
@@ -33,6 +32,7 @@ std::unique_ptr<unsigned char[]> readMetadataBlock(std::fstream& file, MetadataB
 // File pointer (should be) left at the start of the data block index
 void skipPartitionMetadata(std::fstream& file)
 {
+    std::cout << "Skipping partition metadata" << std::endl;
     MetadataBlockHeader header;
     
     do {
@@ -61,11 +61,8 @@ std::string getJSON(std::fstream& file)
 
         if (memcmp(header.BlockName, JSON_HEADER, BLOCK_NAME_LENGTH) == 0)
         {
-
             std::cout << "Found JSON" << std::endl;
-
             auto blockData = readMetadataBlock(file, header);
-
             strJson.assign(reinterpret_cast<const char*>(blockData.get()), header.BlockLength);
         }
         else
@@ -75,12 +72,11 @@ std::string getJSON(std::fstream& file)
     }
 
     while (header.Flags.LastBlock == 0);
-
     return strJson;
 }
 
 // For now ignoring extended partitions
-void readDiskMetadata(std::fstream& file, file_structs::File_Layout fileLayout, file_structs::Disk::Disk_Layout disk)
+void readDiskMetadata(std::fstream& file, file_structs::File_Layout& fileLayout, file_structs::Disk::Disk_Layout& disk)
 {
     MetadataBlockHeader header;
     readFile(file, &header, sizeof(header));
@@ -91,10 +87,12 @@ void readDiskMetadata(std::fstream& file, file_structs::File_Layout fileLayout, 
 
     auto blockData = readMetadataBlock(file, header);
     disk.track0.assign(blockData.get(), blockData.get() + header.BlockLength);
+    
 }
 
 void readDataBlockIndex(std::fstream& file, file_structs::File_Layout& fileLayout)
 {
+
     setFilePointer(file, fileLayout._header.index_file_position, std::ios::beg);
     MetadataBlockHeader header;
 
@@ -111,7 +109,6 @@ void readDataBlockIndex(std::fstream& file, file_structs::File_Layout& fileLayou
             readFile(file, partition.data_blocks.data(), blockCount * sizeof(data_block));
 
             std::cout << "Read data block index" << std::endl;
-            std::cout << partition.data_blocks[0].file_position << std::endl;
         }
     }
 }
@@ -119,6 +116,8 @@ void readDataBlockIndex(std::fstream& file, file_structs::File_Layout& fileLayou
 void readBackupFileLayout(file_structs::File_Layout& layout, std::string backupFileName)
 {
     std::fstream file = openFile(backupFileName);
+
+    //Set pointer to the start of the footer
     setFilePointer(file, calculateFooterOffset(), std::ios_base::end);
 
     uint64_t headerOffset;
@@ -133,4 +132,5 @@ void readBackupFileLayout(file_structs::File_Layout& layout, std::string backupF
     layout = json;
 
     readDataBlockIndex(file, layout);
+    file.close();
 }

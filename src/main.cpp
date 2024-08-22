@@ -22,7 +22,6 @@ void handleBackupRestore(std::string backupFileName)
 {
     file_structs::File_Layout fileLayout;
     readBackupFileLayout(fileLayout, backupFileName);
-    std::cout << fileLayout.disks[0].partitions[0].data_blocks[0].file_position << std::endl;
 
     std::filesystem::path curPath = std::filesystem::current_path();
     std::wstring wtargetVHDXPath = curPath.wstring() + L"\\vhdxout\\test.vhdx";
@@ -39,6 +38,5 @@ int main(int argc, char* argv[])
 {
     std::string backupFileName = "src/515CE701D2BB4A22-TestMBR-SP-NC-NE-00-00.mrimg";
     handleBackupRestore(backupFileName);
-    int x;
-    std::cin >> x;
+    std::cin.get();
 }
