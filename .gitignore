@@ -1,6 +1,7 @@
 /.vscode/
 /bazel-bin/
 /bazel-macrium_reflect/
+/bazel-macrium-reflect/
 /bazel-out/
 /bazel-testlogs/
 
