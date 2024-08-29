@@ -1,0 +1,7 @@
+build:linux --cpu=k8
+build:linux --host_cpu=k8
+build:linux --crosstool_top=@bazel_tools//tools/cpp:toolchain
+
+build:windows --cpu=x64_windows
+build:windows --host_cpu=x64_windows
+build:windows --crosstool_top=@bazel_tools//tools/cpp:toolchain

@@ -13,7 +13,7 @@
 EXTERN_C const GUID DECLSPEC_SELECTANY VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT =
 { 0xec984aec, 0xa0f9, 0x47e9, { 0x90, 0x1f, 0x71, 0x41, 0x5a, 0x66, 0x34, 0x5b } };
 
-void CreateVHDX(std::wstring path, ULONGLONG size, ULONG sectorSize)
+void CreateVDisk(std::wstring path, unsigned long long size, unsigned long sectorSize)
 {
     if (size % sectorSize != 0) {
         size = ((size / sectorSize) + 1) * sectorSize;
@@ -46,7 +46,7 @@ void CreateVHDX(std::wstring path, ULONGLONG size, ULONG sectorSize)
     );
 }
 
-void MountVHDX(std::wstring path, std::wstring& diskPath)
+void MountVDisk(std::wstring path, std::wstring& diskPath)
 {
     HANDLE vhdxHandle;
 

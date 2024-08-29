@@ -5,5 +5,8 @@ cc_binary(
     name = "main",
     srcs = ["main.cpp"],
     deps = ["//libs"],
-    copts = ["-std:c++17"],
+    copts = select({
+        "@platforms//os:windows" : ["-std:c++17"],
+        "@platforms//os:linux" : ["-std=c++17"]
+    }),
 )

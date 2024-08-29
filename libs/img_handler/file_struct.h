@@ -145,9 +145,9 @@ namespace file_structs
     {
         std::string backup_format;
         std::string backup_guid;
-        __time64_t backup_time;
+        uint64_t backup_time;
         std::string backup_type;
-        __time64_t backupset_time;
+        uint64_t backupset_time;
         bool delta_index;
         uint16_t file_number;
         uint16_t imaged_disks_count;
