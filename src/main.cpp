@@ -29,14 +29,17 @@ void handleBackupRestore(std::string backupFileName)
     readBackupFileLayout(fileLayout, backupFileName);
 
     std::filesystem::path curPath = std::filesystem::current_path();
-    std::wstring wtargetVHDXPath = curPath.wstring() + L"\\vhdxout\\test.vhdx";
+    std::string wtargetVHDXPath = curPath.string() + "/test.img";
 
     CreateVDisk(wtargetVHDXPath, fileLayout.disks[0]._geometry.disk_size, fileLayout.disks[0]._geometry.bytes_per_sector);
+
+    std::cout << curPath << std::endl;
     
-    std::wstring diskPath;
+    std::string diskPath;
     MountVDisk(wtargetVHDXPath, diskPath);
-    restoreDisk(backupFileName, wideToString(diskPath), fileLayout);
-    UpdateDiskProperties(diskPath);
+    // restoreDisk(backupFileName, wideToString(diskPath), fileLayout);
+    // restoreDisk(backupFileName, diskPath, fileLayout);
+    // UpdateDiskProperties(diskPath);
 }
 
 int main(int argc, char* argv[])
