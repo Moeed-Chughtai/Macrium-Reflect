@@ -5,6 +5,11 @@
 /bazel-out/
 /bazel-testlogs/
 
+bazel-bin
+bazel-Macrium-Reflect
+bazel-out
+bazel-testlogs
+
 *.exe
 *.ilk
 *.pdb

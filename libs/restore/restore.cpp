@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 
-std::unique_ptr<unsigned char[]> readDataBlock(std::fstream& backupFile, file_structs::File_Layout backupFileLayout, data_block& block)
+std::unique_ptr<unsigned char[]> readDataBlock(std::fstream& backupFile, file_structs::File_Layout backupFileLayout, DataBlockIndexElement& block)
 {
     std::unique_ptr<unsigned char[]> readBuffer = std::make_unique<unsigned char[]>(block.block_length);
     setFilePointer(backupFile, block.file_position, std::ios::beg);
@@ -25,10 +25,23 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
     {
         setFilePointer(diskFile, partition._geometry.start + partition._geometry.boot_sector_offset, std::ios::beg);
 
-        // FAT 32 stuff, do later
+        // Restore reserved sectors, for FAT32
+        if (partition._file_system.reserved_sectors_byte_length > 0) {
+            auto totalBytesToWrite = partition._file_system.reserved_sectors_byte_length;
+            uint32_t bytesWritten = 0;
+            int index = 0;
+            for (auto& reservedSectorBlock : partition.reserved_sectors) {
+                auto blockData = readDataBlock(backupFile, backupFileLayout, reservedSectorBlock);
+                if (blockData != nullptr) {
+                    uint32_t bytesToWrite = std::min(reservedSectorBlock.block_length, totalBytesToWrite - bytesWritten);
+                    writeToFile(diskFile, blockData.get(), bytesToWrite);
+                }
+            }
+            std::cout << "Restored reserved sectors" << std::endl;
+        }
+
 
         int blockIndex = 0;
-        std::cout << partition._file_system.lcn0_offset << std::endl;
         for (auto& block : partition.data_blocks)
         {
             auto blockData = readDataBlock(backupFile, backupFileLayout, block);

@@ -103,10 +103,18 @@ void readDataBlockIndex(std::fstream& file, file_structs::File_Layout& fileLayou
             skipPartitionMetadata(file);    //skip over bitmap block and index header
 
             int32_t blockCount;
-            setFilePointer(file, sizeof(blockCount), std::ios::cur); // Skipping blockcount for reserved sectors (FAT32 only), will be 0 for non-fat32 anyways
+            readFile(file, &blockCount, sizeof(blockCount));
+
+            // If FAT32, read reserved sectors
+            if (blockCount != 0) {
+                partition.reserved_sectors.resize(blockCount);
+                readFile(file, partition.reserved_sectors.data(), blockCount * sizeof(DataBlockIndexElement));
+                std::cout << "Read reserved sectors" << std::endl;
+            }
+
             readFile(file, &blockCount, sizeof(blockCount));
             partition.data_blocks.resize(blockCount);
-            readFile(file, partition.data_blocks.data(), blockCount * sizeof(data_block));
+            readFile(file, partition.data_blocks.data(), blockCount * sizeof(DataBlockIndexElement));
 
             std::cout << "Read data block index" << std::endl;
         }

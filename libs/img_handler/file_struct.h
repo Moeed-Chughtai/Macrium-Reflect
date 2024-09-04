@@ -4,9 +4,9 @@
 #include <cstdint>
 #include "enums.h"
 
-#pragma pack(push, 1)   //Needed to prevent data_block from being padded to 32 bytes
+#pragma pack(push, 1)   //Needed to prevent DataBlockIndexElement from being padded to 32 bytes
 
-struct data_block
+struct DataBlockIndexElement
 {
 	int64_t  file_position;
 	uint8_t  md5_hash[16];
@@ -29,6 +29,7 @@ namespace file_structs
             uint64_t mft_offset;
             uint32_t mft_record_size;
             uint32_t partition_index;
+            uint32_t reserved_sectors_byte_length = 0;
             uint32_t sectors_per_cluster;
             std::string shadow_copy;
             uint64_t start;
@@ -38,7 +39,7 @@ namespace file_structs
             std::string volume_label;
         };
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(File_System, type, mft_offset, mft_record_size, drive_letter, end, start, free_clusters, lcn0_offset,
-            sectors_per_cluster, total_clusters, volume_guid, volume_label, lcn0_file_number, bitlocker_state, partition_index, shadow_copy);
+            sectors_per_cluster, total_clusters, volume_guid, volume_label, lcn0_file_number, bitlocker_state, partition_index, shadow_copy, reserved_sectors_byte_length);
 
         struct Geometry
         {
@@ -91,7 +92,8 @@ namespace file_structs
             Header _header;
             Table_Entry _partition_table_entry;
             
-            std::vector<data_block> data_blocks;
+            std::vector<DataBlockIndexElement> reserved_sectors;
+            std::vector<DataBlockIndexElement> data_blocks;
         };
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Partition_Layout, _file_system, _geometry, _header, _partition_table_entry)
     };

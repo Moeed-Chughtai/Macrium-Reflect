@@ -39,7 +39,7 @@ void handleLinuxRestore(std::string backupFileName)
 
 int main(int argc, char *argv[])
 {
-    std::string backupFileName = "src/515CE701D2BB4A22-TestMBR-SP-NC-NE-00-00.mrimg";
+    std::string backupFileName = "Backup-Files/420AEDBA2E6EFE60-GPT-MP-00-00.mrimg";
     handleLinuxRestore(backupFileName);
     std::cin.get();
 }
