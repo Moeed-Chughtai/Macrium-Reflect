@@ -3,35 +3,32 @@
 #include <stdlib.h>
 #include <iostream>
 
-void RunCommandWithOutput(std::string command, std::string& output)
+void RunCommandWithOutput(std::string command, std::string &output)
 {
     FILE *fp = popen(command.c_str(), "r");
     char c = fgetc(fp);
-    do {
+    do
+    {
         output += c;
         c = fgetc(fp);
-    }
-    while (c != '\n');
+    } while (c != '\n');
     pclose(fp);
 }
 
-void CreateVDisk(std::string path, unsigned long long size, unsigned long sectorSize)
+void CreateIMG(std::string imgPath, unsigned long long size, unsigned long sectorSize)
 {
     uint32_t count = size / sectorSize;
-    std::cout << path << std::endl;
-    system(("sudo dd if=/dev/zero of=" + path + " bs=" + std::to_string(sectorSize) + " count=" + std::to_string(count)).c_str());
-    system(("sudo chmod 777 " + path).c_str());
+    system(("sudo dd if=/dev/zero of=" + imgPath + " bs=" + std::to_string(sectorSize) + " count=" + std::to_string(count)).c_str());
+    system(("sudo chmod 777 " + imgPath).c_str());
 }
 
-void MountVDisk(std::string imgPath, std::string& loopFilePath)
+void MountIMG(std::string imgPath, std::string &loopFilePath)
 {
     RunCommandWithOutput("sudo losetup -f", loopFilePath);
-
     system(("sudo losetup " + loopFilePath + " " + imgPath).c_str());
-    
 }
 
-void UpdateDiskProperties(std::string imgPath)
+void UnmountIMG(std::string loopFilePath)
 {
-    
+    system(("sudo losetup -d" + loopFilePath).c_str());
 }
