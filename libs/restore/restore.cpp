@@ -43,4 +43,6 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
         }
     }
     std::cout << "Restored all blocks" << std::endl;
+    closeFile(backupFile);
+    closeFile(diskFile);
 }

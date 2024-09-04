@@ -132,5 +132,5 @@ void readBackupFileLayout(file_structs::File_Layout& layout, std::string backupF
     layout = json;
 
     readDataBlockIndex(file, layout);
-    file.close();
+    closeFile(file);
 }

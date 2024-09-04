@@ -33,6 +33,16 @@ std::fstream openFile(std::string fileName)
     return file;
 }
 
+void closeFile(std::fstream& file)
+{
+    file.close();
+    if (file.fail())
+    {
+        std::cout << "Failed to close file" << std::endl;
+        throw std::runtime_error("Failed to close file.");
+    }
+}
+
 void writeToFile(std::fstream& file, void* buffer, std::streamsize bytesToWrite)
 {
     file.write(static_cast<char*>(buffer), bytesToWrite);

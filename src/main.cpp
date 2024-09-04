@@ -23,28 +23,28 @@ std::string wideToString(const std::wstring& wstr) {
 }
 
 
-void handleBackupRestore(std::string backupFileName)
+void handleLinuxRestore(std::string backupFileName)
 {
     file_structs::File_Layout fileLayout;
     readBackupFileLayout(fileLayout, backupFileName);
 
     std::filesystem::path curPath = std::filesystem::current_path();
-    std::string wtargetVHDXPath = curPath.string() + "/test.img";
+    std::string imgPath = curPath.string() + "/test.img";
 
-    CreateVDisk(wtargetVHDXPath, fileLayout.disks[0]._geometry.disk_size, fileLayout.disks[0]._geometry.bytes_per_sector);
+    CreateVDisk(imgPath, fileLayout.disks[0]._geometry.disk_size, fileLayout.disks[0]._geometry.bytes_per_sector);
 
     std::cout << curPath << std::endl;
     
     std::string diskPath;
-    MountVDisk(wtargetVHDXPath, diskPath);
-    // restoreDisk(backupFileName, wideToString(diskPath), fileLayout);
-    // restoreDisk(backupFileName, diskPath, fileLayout);
+    restoreDisk(backupFileName, imgPath, fileLayout);
+    std::cout << "Restored to .img file" << std::endl;
+    MountVDisk(imgPath, diskPath);
     // UpdateDiskProperties(diskPath);
 }
 
 int main(int argc, char* argv[])
 {
     std::string backupFileName = "src/515CE701D2BB4A22-TestMBR-SP-NC-NE-00-00.mrimg";
-    handleBackupRestore(backupFileName);
+    handleLinuxRestore(backupFileName);
     std::cin.get();
 }
