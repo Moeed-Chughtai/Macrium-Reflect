@@ -38,6 +38,7 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
                 }
             }
             std::cout << "Restored reserved sectors" << std::endl;
+            std::cout << "Bytes written to reserved sectors: " << bytesWritten << std::endl;
         }
 
 
