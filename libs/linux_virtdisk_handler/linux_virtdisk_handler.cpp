@@ -25,7 +25,7 @@ void CreateIMG(std::string imgPath, unsigned long long size, unsigned long secto
 void MountIMG(std::string imgPath, std::string &loopFilePath)
 {
     RunCommandWithOutput("sudo losetup -f", loopFilePath);
-    system(("sudo losetup " + loopFilePath + " " + imgPath).c_str());
+    system(("sudo losetup -P " + loopFilePath + " " + imgPath).c_str());
 }
 
 void UnmountIMG(std::string loopFilePath)
