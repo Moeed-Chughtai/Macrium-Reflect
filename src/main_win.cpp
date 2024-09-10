@@ -1,9 +1,6 @@
 #include <iostream>
 #include <filesystem>
 #include <string>
-#include <locale>
-#include <stdexcept>
-#include <codecvt>
 
 #include "../libs/img_handler/file_struct.h"
 #include "../libs/img_handler/img_handler.h"
@@ -19,7 +16,7 @@ std::string wideToString(const std::wstring &wstr)
     return str;
 }
 
-void handleLinuxRestore(std::string backupFileName)
+void handleWinRestore(std::string backupFileName)
 {
     file_structs::File_Layout fileLayout;
     readBackupFileLayout(fileLayout, backupFileName);
@@ -33,13 +30,19 @@ void handleLinuxRestore(std::string backupFileName)
 
     std::wstring diskPath;
     MountVDisk(vhdxPath, diskPath);
-    restoreDisk(backupFileName, wideToString(diskPath), fileLayout);
+    restoreDisk(backupFileName, wideToString(diskPath), fileLayout, 0);
     UpdateDiskProperties(diskPath);
 }
 
 int main(int argc, char *argv[])
 {
-    std::string backupFileName = "Backup-Files/F9D9EADB46DEBD94-FATSingleTest-00-00.mrimg";
-    handleLinuxRestore(backupFileName);
+    std::cout << argc << std::endl;
+    if (argc == 1) {
+        std::cout << "No arguments provided" << std::endl;
+        return 1;
+    }
+    // std::string backupFileName = "Backup-Files/515CE701D2BB4A22-TestMBR-SP-NC-NE-00-00.mrimg";
+    std::string backupFileName = argv[1];
+    handleWinRestore(backupFileName);
     std::cin.get();
 }

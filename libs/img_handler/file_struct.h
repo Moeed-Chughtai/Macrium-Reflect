@@ -14,6 +14,12 @@ struct DataBlockIndexElement
 	uint16_t file_number;
 };
 
+struct DeltaDataBlockIndexElement
+{
+    DataBlockIndexElement data_block;
+    uint32_t block_index;
+};
+
 namespace file_structs
 {
     namespace Partition
@@ -93,7 +99,9 @@ namespace file_structs
             Table_Entry _partition_table_entry;
             
             std::vector<DataBlockIndexElement> reserved_sectors;
-            std::vector<DataBlockIndexElement> data_blocks;
+            std::vector<DataBlockIndexElement> data_block_index;
+
+            std::vector<DeltaDataBlockIndexElement> delta_data_block_index;
         };
         NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Partition_Layout, _file_system, _geometry, _header, _partition_table_entry)
     };

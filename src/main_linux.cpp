@@ -1,9 +1,6 @@
 #include <iostream>
 #include <filesystem>
 #include <string>
-#include <locale>
-#include <stdexcept>
-#include <codecvt>
 
 #include "../libs/img_handler/file_struct.h"
 #include "../libs/img_handler/img_handler.h"

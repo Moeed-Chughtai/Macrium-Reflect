@@ -32,25 +32,19 @@ std::unique_ptr<unsigned char[]> readMetadataBlock(std::fstream& file, MetadataB
 // File pointer (should be) left at the start of the data block index
 void skipPartitionMetadata(std::fstream& file)
 {
-    std::cout << "Skipping partition metadata" << std::endl;
     MetadataBlockHeader header;
     
     do {
         readFile(file, &header, sizeof(header));
-
         if (memcmp(header.BlockName, BITMAP_HEADER, BLOCK_NAME_LENGTH) == 0) 
         {
             setFilePointer(file, header.BlockLength, std::ios::cur);
-        }
-        else if (memcmp(header.BlockName, IDX_HEADER, BLOCK_NAME_LENGTH) == 0)
-        {
-            std::cout << "Index header found" << std::endl;
         }
     } 
     while (header.Flags.LastBlock == 0);
 }
 
-std::string getJSON(std::fstream& file)
+std::string readJSON(std::fstream& file)
 {
     MetadataBlockHeader header;
     std::string strJson;
@@ -61,7 +55,6 @@ std::string getJSON(std::fstream& file)
 
         if (memcmp(header.BlockName, JSON_HEADER, BLOCK_NAME_LENGTH) == 0)
         {
-            std::cout << "Found JSON" << std::endl;
             auto blockData = readMetadataBlock(file, header);
             strJson.assign(reinterpret_cast<const char*>(blockData.get()), header.BlockLength);
         }
@@ -109,14 +102,19 @@ void readDataBlockIndex(std::fstream& file, file_structs::File_Layout& fileLayou
             if (blockCount != 0) {
                 partition.reserved_sectors.resize(blockCount);
                 readFile(file, partition.reserved_sectors.data(), blockCount * sizeof(DataBlockIndexElement));
-                std::cout << "Read reserved sectors" << std::endl;
             }
 
             readFile(file, &blockCount, sizeof(blockCount));
-            partition.data_blocks.resize(blockCount);
-            readFile(file, partition.data_blocks.data(), blockCount * sizeof(DataBlockIndexElement));
 
-            std::cout << "Read data block index" << std::endl;
+            if (fileLayout._header.delta_index) {
+                partition.delta_data_block_index.resize(blockCount);
+                readFile(file, partition.delta_data_block_index.data(), blockCount * sizeof(DeltaDataBlockIndexElement));
+            }
+            else {
+                partition.data_block_index.resize(blockCount);
+                readFile(file, partition.data_block_index.data(), blockCount * sizeof(DataBlockIndexElement));
+            }
+
         }
     }
 }
@@ -125,7 +123,6 @@ void readBackupFileLayout(file_structs::File_Layout& layout, std::string backupF
 {
     std::fstream file = openFile(backupFileName);
 
-    //Set pointer to the start of the footer
     setFilePointer(file, calculateFooterOffset(), std::ios_base::end);
 
     uint64_t headerOffset;
@@ -134,7 +131,7 @@ void readBackupFileLayout(file_structs::File_Layout& layout, std::string backupF
     readFooterData(headerOffset, magicBytes, file);
     setFilePointer(file, headerOffset, std::ios::beg);
 
-    std::string strJson = getJSON(file);
+    std::string strJson = readJSON(file);
 
     nlohmann::json json = nlohmann::json::parse(strJson);
     layout = json;

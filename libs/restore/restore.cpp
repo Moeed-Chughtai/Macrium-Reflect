@@ -1,5 +1,5 @@
-#include "..//img_handler//file_struct.h"
-#include "..//file_handler//file_handler.h"
+#include "backup_set.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -11,22 +11,24 @@ std::unique_ptr<unsigned char[]> readDataBlock(std::fstream& backupFile, file_st
     return readBuffer;
 }
 
-// Assumes single disk in file (will need to be changed later)
-void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_structs::File_Layout& backupFileLayout){
-    std::fstream backupFile = openFile(backupFilePath);
+// Assumes single disk in file 
+void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_structs::File_Layout& backupFileLayout, int diskIndex){
     std::fstream diskFile = openFile(targetDiskPath);
 
-    file_structs::Disk::Disk_Layout disk = backupFileLayout.disks[0];
-
+    file_structs::Disk::Disk_Layout disk = backupFileLayout.disks[diskIndex];
 
     writeToFile(diskFile, disk.track0.data(), (uint32_t)disk.track0.size());
   
     for (auto& partition : backupFileLayout.disks[0].partitions)
     {
+        PartitionBackupSet backupSet;
+        BuildPartitionBackupSet(backupSet, partition, diskIndex);
+        std::cout << "Backupset created" << std::endl;
+
         setFilePointer(diskFile, partition._geometry.start + partition._geometry.boot_sector_offset, std::ios::beg);
 
         // Restore reserved sectors, for FAT32
-        if (partition._file_system.reserved_sectors_byte_length > 0) {
+        /* if (partition._file_system.reserved_sectors_byte_length > 0) {
             auto totalBytesToWrite = partition._file_system.reserved_sectors_byte_length;
             uint32_t bytesWritten = 0;
             int index = 0;
@@ -39,24 +41,41 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
             }
             std::cout << "Restored reserved sectors" << std::endl;
             std::cout << "Bytes written to reserved sectors: " << bytesWritten << std::endl;
-        }
+        } */
+
+       //Not working as wrong block is being used to get the file offset. Need to fill the some data block index (could overwrite full backup or create new index)
 
 
         int blockIndex = 0;
-        for (auto& block : partition.data_blocks)
+        auto lcn0Start = partition._geometry.start + (partition._file_system.lcn0_offset - partition._file_system.start);
+        for (auto& backupSetBlock : backupSet.backupSetBlockIndex)
         {
-            auto blockData = readDataBlock(backupFile, backupFileLayout, block);
-            if (blockData != nullptr && block.block_length != 0)
+            auto blockData = readDataBlock(*(backupSetBlock.file), backupFileLayout, backupSetBlock.block);
+
+            if (blockData != nullptr && backupSetBlock.block.block_length != 0)
             {
-                std::streamoff offset = partition._file_system.lcn0_offset + (static_cast<uint64_t>(partition._header.block_size) * blockIndex);
+                std::streamoff offset = lcn0Start + (static_cast<uint64_t>(partition._header.block_size) * blockIndex);
                 setFilePointer(diskFile, offset, std::ios::beg);
-                writeToFile(diskFile, blockData.get(), block.block_length);
+                writeToFile(diskFile, blockData.get(), backupSetBlock.block.block_length);
             }
             blockIndex++;
             
         }
+/*         std::fstream backupFile = openFile(backupFilePath);
+        for (auto& block : partition.data_block_index) {
+            auto blockData = readDataBlock(backupFile, backupFileLayout, block);
+            if (blockData != nullptr && block.block_length != 0)
+            {
+                std::streamoff offset = lcn0Start + (static_cast<uint64_t>(partition._header.block_size) * blockIndex);
+                setFilePointer(diskFile, offset, std::ios::beg);
+                writeToFile(diskFile, blockData.get(), block.block_length);
+            }
+            blockIndex++;
+        }
+        closeFile(backupFile); */
+        CloseBackupFiles(backupSet);
     }
     std::cout << "Restored all blocks" << std::endl;
-    closeFile(backupFile);
     closeFile(diskFile);
+    
 }
