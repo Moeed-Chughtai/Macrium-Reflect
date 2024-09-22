@@ -46,8 +46,6 @@ void FillInitialBlockFileMap(PartitionBackupSet& backupSet)
         blockIndexElement.file = filePtr;
         backupSet.backupSetBlockIndex.push_back(blockIndexElement);
     }
-
-
 }
 
 void AddDeltaToBlockFileMap(PartitionBackupSet& backupSet)

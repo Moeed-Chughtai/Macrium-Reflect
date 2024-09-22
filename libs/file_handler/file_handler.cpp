@@ -49,7 +49,7 @@ void writeToFile(std::fstream& file, void* buffer, std::streamsize bytesToWrite)
     if (file.fail())
     {
         if (file.eof()) {std::cout << "End of file reached" << std::endl;}
-        std::cout << "Failed to write to file" << std::endl;
+        std::cout << "Failed to write to file: " << std::endl;
         throw std::runtime_error("Failed to write to file.");
     }
 }

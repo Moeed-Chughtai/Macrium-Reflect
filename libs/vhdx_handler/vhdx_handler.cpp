@@ -19,6 +19,11 @@ void CreateVDisk(std::wstring path, unsigned long long size, unsigned long secto
         size = ((size / sectorSize) + 1) * sectorSize;
     }
 
+    // Needed to fix restore for incrementals, for some reason the disk size given in the JSON of the incremental backup is too small
+    // size = 536870912;
+
+    std::cout << "Disk size: " << size << std::endl;
+
     CREATE_VIRTUAL_DISK_PARAMETERS createParams;
     ZeroMemory(&createParams, sizeof(createParams));
     createParams.Version = CREATE_VIRTUAL_DISK_VERSION_2;

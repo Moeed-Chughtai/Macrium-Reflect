@@ -56,6 +56,8 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
             {
                 std::streamoff offset = lcn0Start + (static_cast<uint64_t>(partition._header.block_size) * blockIndex);
                 setFilePointer(diskFile, offset, std::ios::beg);
+                // std::cout << "Writing block " << blockIndex << " to disk. ";
+                // std::cout << "Offset: " << offset << " , block length: " << backupSetBlock.block.block_length << std::endl;
                 writeToFile(diskFile, blockData.get(), backupSetBlock.block.block_length);
             }
             blockIndex++;
