@@ -28,12 +28,12 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
         setFilePointer(diskFile, partition._geometry.start + partition._geometry.boot_sector_offset, std::ios::beg);
 
         // Restore reserved sectors, for FAT32
-        /* if (partition._file_system.reserved_sectors_byte_length > 0) {
+        if (partition._file_system.reserved_sectors_byte_length > 0) {
             auto totalBytesToWrite = partition._file_system.reserved_sectors_byte_length;
             uint32_t bytesWritten = 0;
             int index = 0;
             for (auto& reservedSectorBlock : partition.reserved_sectors) {
-                auto blockData = readDataBlock(backupFile, backupFileLayout, reservedSectorBlock);
+                auto blockData = readDataBlock(*backupSet.backupFilePtrs.back().get(), backupFileLayout, reservedSectorBlock);
                 if (blockData != nullptr) {
                     uint32_t bytesToWrite = std::min(reservedSectorBlock.block_length, totalBytesToWrite - bytesWritten);
                     writeToFile(diskFile, blockData.get(), bytesToWrite);
@@ -41,9 +41,8 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
             }
             std::cout << "Restored reserved sectors" << std::endl;
             std::cout << "Bytes written to reserved sectors: " << bytesWritten << std::endl;
-        } */
+        }
 
-       //Not working as wrong block is being used to get the file offset. Need to fill the some data block index (could overwrite full backup or create new index)
 
 
         int blockIndex = 0;
@@ -56,25 +55,12 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
             {
                 std::streamoff offset = lcn0Start + (static_cast<uint64_t>(partition._header.block_size) * blockIndex);
                 setFilePointer(diskFile, offset, std::ios::beg);
-                // std::cout << "Writing block " << blockIndex << " to disk. ";
-                // std::cout << "Offset: " << offset << " , block length: " << backupSetBlock.block.block_length << std::endl;
+                std::cout << "Offset: " << offset << " , block length: " << backupSetBlock.block.block_length << std::endl;
                 writeToFile(diskFile, blockData.get(), backupSetBlock.block.block_length);
             }
             blockIndex++;
             
         }
-/*         std::fstream backupFile = openFile(backupFilePath);
-        for (auto& block : partition.data_block_index) {
-            auto blockData = readDataBlock(backupFile, backupFileLayout, block);
-            if (blockData != nullptr && block.block_length != 0)
-            {
-                std::streamoff offset = lcn0Start + (static_cast<uint64_t>(partition._header.block_size) * blockIndex);
-                setFilePointer(diskFile, offset, std::ios::beg);
-                writeToFile(diskFile, blockData.get(), block.block_length);
-            }
-            blockIndex++;
-        }
-        closeFile(backupFile); */
         CloseBackupFiles(backupSet);
     }
     std::cout << "Restored all blocks" << std::endl;

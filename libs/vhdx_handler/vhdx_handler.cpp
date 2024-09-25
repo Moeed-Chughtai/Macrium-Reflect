@@ -15,14 +15,21 @@ EXTERN_C const GUID DECLSPEC_SELECTANY VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT =
 
 void CreateVDisk(std::wstring path, unsigned long long size, unsigned long sectorSize)
 {
+    std::cout << "Sector size: " << sectorSize << std::endl;
     if (size % sectorSize != 0) {
         size = ((size / sectorSize) + 1) * sectorSize;
     }
 
-    // Needed to fix restore for incrementals, for some reason the disk size given in the JSON of the incremental backup is too small
-    // size = 536870912;
+    std::cout << "Disk size: " << size << std::endl;
+
+
+    const int blockSize = 65536;
+    if (size % blockSize != 0) {
+        size = ((size / blockSize) + 1) * blockSize;
+    }
 
     std::cout << "Disk size: " << size << std::endl;
+
 
     CREATE_VIRTUAL_DISK_PARAMETERS createParams;
     ZeroMemory(&createParams, sizeof(createParams));
