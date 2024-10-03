@@ -1,5 +1,5 @@
 ===============================================================================
-Copyright (c) 2024 Adam Paksy, Moeed Chughtai. All rights reserved.
+Copyright (c) 2024 Paramount Software UK Limited. All rights reserved.
 
 This software is licensed under the MIT License.
 
@@ -27,7 +27,7 @@ Third Party Libraries:
    Modern C++. nlohmann/json is licensed under the MIT License.
    For more details, please see the nlohmann/json GitHub repository:
    https://github.com/nlohmann/json/blob/develop/LICENSE.MIT
-
+   
 ===============================================================================
 Code written by:
 Moeed Chughtai (https://github.com/Moeed-Chughtai)
