@@ -9,8 +9,9 @@ bool SortByDescFileNumber(file_structs::Partition::File_History& fhistory1, file
     return fhistory1.file_number > fhistory2.file_number;
 }
 
-// Finds and stores the layouts and paths of the prior incremental backup files up to (and including) the latest full backup
-// Full backup will be at the start of both vectors
+/*  Finds and stores the layouts and paths of the prior incremental backup files up to (and including) the latest full backup
+    Full backup will be at the start of both vectors 
+    This approach uses the file history in the JSON, so this only works for a setup where the file path of the previous backup files has changed */
 void FindBackupFiles(PartitionBackupSet& backupSet, file_structs::Partition::Partition_Layout& partitionLayout, int diskIndex)
 {
     // Sort the files in descending order so we go from most recent backup to oldest
@@ -29,9 +30,7 @@ void FindBackupFiles(PartitionBackupSet& backupSet, file_structs::Partition::Par
             }
         }
 
-        if (fileLayout._header.delta_index == 0) { 
-            std::cout << backupSet.partitionLayouts[0]->data_block_index.size() << std::endl;
-            return; } // Stop at the full backup
+        if (fileLayout._header.delta_index == 0) { return; } // Stop at the full backup
     }
     
 }
@@ -69,13 +68,7 @@ void CloseBackupFiles(PartitionBackupSet& backupSet)
 
 void BuildPartitionBackupSet(PartitionBackupSet& backupSet, file_structs::Partition::Partition_Layout& partitionLayout, int diskIndex)
 {
-    std::cout << backupSet.partitionLayouts.size() << std::endl;
     FindBackupFiles(backupSet, partitionLayout, diskIndex);
-    std::cout << "Backup files found" << std::endl;
-    std::cout << backupSet.partitionLayouts[0]->data_block_index.size() << std::endl; 
     FillInitialBlockFileMap(backupSet);
-    std::cout << "Initial block file map filled" << std::endl;
-    std::cout << "Backupset block index size: " << backupSet.backupSetBlockIndex.size() << std::endl;
     AddDeltaToBlockFileMap(backupSet);
-    std::cout << "Delta block file map filled" << std::endl;
 }

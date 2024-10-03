@@ -26,8 +26,6 @@ void handleWinRestore(std::string backupFileName)
 
     CreateVDisk(vhdxPath, fileLayout.disks[0]._geometry.disk_size, fileLayout.disks[0]._geometry.bytes_per_sector);
 
-    std::cout << curPath << std::endl;
-
     std::wstring diskPath;
     MountVDisk(vhdxPath, diskPath);
     restoreDisk(backupFileName, wideToString(diskPath), fileLayout, 0);
@@ -41,7 +39,6 @@ int main(int argc, char *argv[])
         std::cout << "No arguments provided" << std::endl;
         return 1;
     }
-    // std::string backupFileName = "Backup-Files/515CE701D2BB4A22-TestMBR-SP-NC-NE-00-00.mrimg";
     std::string backupFileName = argv[1];
     handleWinRestore(backupFileName);
     std::cin.get();

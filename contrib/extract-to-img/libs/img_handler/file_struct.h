@@ -4,7 +4,7 @@
 #include <cstdint>
 #include "enums.h"
 
-#pragma pack(push, 1)   //Needed to prevent DataBlockIndexElement from being padded to 32 bytes
+#pragma pack(push, 1)   // Prevents DataBlockIndexElement from being padded to 32 bytes
 
 struct DataBlockIndexElement
 {

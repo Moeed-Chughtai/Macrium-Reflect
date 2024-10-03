@@ -8,7 +8,7 @@
 
 // https://learn.microsoft.com/en-us/windows/win32/api/virtdisk/nf-virtdisk-createvirtualdisk
 
-#pragma comment(lib, "VirtDisk.lib")    //Link to library i think?
+#pragma comment(lib, "VirtDisk.lib") 
 
 EXTERN_C const GUID DECLSPEC_SELECTANY VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT =
 { 0xec984aec, 0xa0f9, 0x47e9, { 0x90, 0x1f, 0x71, 0x41, 0x5a, 0x66, 0x34, 0x5b } };
@@ -20,15 +20,10 @@ void CreateVDisk(std::wstring path, unsigned long long size, unsigned long secto
         size = ((size / sectorSize) + 1) * sectorSize;
     }
 
-    std::cout << "Disk size: " << size << std::endl;
-
-
     const int blockSize = 65536;
     if (size % blockSize != 0) {
-        size = ((size / blockSize) + 1) * blockSize;
+        size = ((size / blockSize) + 2) * blockSize;
     }
-
-    std::cout << "Disk size: " << size << std::endl;
 
 
     CREATE_VIRTUAL_DISK_PARAMETERS createParams;
@@ -118,7 +113,7 @@ void UpdateDiskProperties(std::wstring diskPath)
     // This control code does not require any input data or output data.
     if (!DeviceIoControl(targetDiskHandle, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &bytesWritten, NULL))
     {
-        // If DeviceIoControl fails, close the handle to the target disk and throw a runtime_error.
+        // If DeviceIoControl failed
         CloseHandle(targetDiskHandle);
         std::cout << "Failed to update disk properties" << std::endl;
         throw std::runtime_error("Failed to update disk properties.");
@@ -126,6 +121,5 @@ void UpdateDiskProperties(std::wstring diskPath)
 
     std::cout << bytesWritten << std::endl;
 
-    // Close the handle to the target disk.
     CloseHandle(targetDiskHandle);
 }

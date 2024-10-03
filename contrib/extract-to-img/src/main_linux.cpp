@@ -21,7 +21,7 @@ void handleLinuxRestore(std::string backupFileName)
     std::cout << curPath << std::endl;
 
     std::string loopFilePath;
-    restoreDisk(backupFileName, imgPath, fileLayout);
+    restoreDisk(backupFileName, imgPath, fileLayout, 0);
     std::cout << "Restored to .img file" << std::endl;
     MountIMG(imgPath, loopFilePath);
     std::cout << "Mounted .img to: " << loopFilePath << std::endl;
@@ -32,6 +32,12 @@ void handleLinuxRestore(std::string backupFileName)
 
 int main(int argc, char *argv[])
 {
-    std::string backupFileName = "Backup-Files/F9D9EADB46DEBD94-FATSingleTest-00-00.mrimg";
+    std::cout << argc << std::endl;
+    if (argc == 1) {
+        std::cout << "No arguments provided" << std::endl;
+        return 1;
+    }
+    std::string backupFileName = argv[1];
     handleLinuxRestore(backupFileName);
+    std::cin.get();
 }

@@ -6,7 +6,6 @@
 #include "../img_handler/img_handler.h"
 
 // Maps block index to a backup file 
-// typedef std::unique_ptr<file_structs::Partition::Partition_Layout> PartitionLayoutPtr;
 typedef std::shared_ptr<std::fstream> BackupFilePtr;
 typedef std::unique_ptr<file_structs::Partition::Partition_Layout> PartitionLayoutPtr;
 typedef uint32_t BlockIndex;

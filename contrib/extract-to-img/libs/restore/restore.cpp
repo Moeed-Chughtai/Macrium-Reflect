@@ -11,7 +11,6 @@ std::unique_ptr<unsigned char[]> readDataBlock(std::fstream& backupFile, file_st
     return readBuffer;
 }
 
-// Assumes single disk in file 
 void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_structs::File_Layout& backupFileLayout, int diskIndex){
     std::fstream diskFile = openFile(targetDiskPath);
 
@@ -40,10 +39,7 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
                 }
             }
             std::cout << "Restored reserved sectors" << std::endl;
-            std::cout << "Bytes written to reserved sectors: " << bytesWritten << std::endl;
         }
-
-
 
         int blockIndex = 0;
         auto lcn0Start = partition._geometry.start + (partition._file_system.lcn0_offset - partition._file_system.start);
@@ -55,7 +51,6 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
             {
                 std::streamoff offset = lcn0Start + (static_cast<uint64_t>(partition._header.block_size) * blockIndex);
                 setFilePointer(diskFile, offset, std::ios::beg);
-                std::cout << "Offset: " << offset << " , block length: " << backupSetBlock.block.block_length << std::endl;
                 writeToFile(diskFile, blockData.get(), backupSetBlock.block.block_length);
             }
             blockIndex++;
@@ -65,5 +60,4 @@ void restoreDisk(std::string backupFilePath, std::string targetDiskPath, file_st
     }
     std::cout << "Restored all blocks" << std::endl;
     closeFile(diskFile);
-    
 }
