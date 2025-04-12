@@ -1,3 +1,12 @@
+/**
+ * @file vhdx_handler.cpp
+ * @brief Implementation of Windows VHDX virtual disk management
+ * 
+ * This file implements the functionality for creating, mounting, and managing
+ * VHDX virtual disks on Windows systems using the Windows Virtual Disk Service API.
+ * It provides a high-level interface to create and manage virtual disks.
+ */
+
 #include <iostream>
 #include <filesystem>
 #include "vhdx_handler.h"
@@ -10,9 +19,27 @@
 
 #pragma comment(lib, "VirtDisk.lib") 
 
+/**
+ * @brief Microsoft's vendor ID for virtual storage
+ * 
+ * This GUID identifies Microsoft as the vendor for virtual storage devices.
+ * It is used when creating and managing VHDX files.
+ */
 EXTERN_C const GUID DECLSPEC_SELECTANY VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT =
 { 0xec984aec, 0xa0f9, 0x47e9, { 0x90, 0x1f, 0x71, 0x41, 0x5a, 0x66, 0x34, 0x5b } };
 
+/**
+ * @brief Creates a new VHDX virtual disk
+ * 
+ * This function creates a new VHDX virtual disk file with the specified size
+ * and sector size. The disk is created as a fixed-size disk with the default
+ * block size. The size is adjusted to be a multiple of both sector size and
+ * block size (64KB).
+ * 
+ * @param path Path where the VHDX file should be created
+ * @param size Total size of the virtual disk in bytes
+ * @param sectorSize Size of each sector in bytes
+ */
 void CreateVDisk(std::wstring path, unsigned long long size, unsigned long sectorSize)
 {
     std::cout << "Sector size: " << sectorSize << std::endl;
@@ -24,7 +51,6 @@ void CreateVDisk(std::wstring path, unsigned long long size, unsigned long secto
     if (size % blockSize != 0) {
         size = ((size / blockSize) + 2) * blockSize;
     }
-
 
     CREATE_VIRTUAL_DISK_PARAMETERS createParams;
     ZeroMemory(&createParams, sizeof(createParams));
@@ -53,6 +79,18 @@ void CreateVDisk(std::wstring path, unsigned long long size, unsigned long secto
     );
 }
 
+/**
+ * @brief Mounts a VHDX virtual disk
+ * 
+ * This function mounts an existing VHDX virtual disk file and returns the path
+ * to the mounted disk. The process involves:
+ * 1. Opening the VHDX file
+ * 2. Attaching it as a virtual disk
+ * 3. Getting the physical path to the mounted disk
+ * 
+ * @param path Path to the VHDX file to mount
+ * @param diskPath Output parameter that receives the path to the mounted disk
+ */
 void MountVDisk(std::wstring path, std::wstring& diskPath)
 {
     HANDLE vhdxHandle;
@@ -101,6 +139,19 @@ void MountVDisk(std::wstring path, std::wstring& diskPath)
     std::wcout << L"Mount function path: " << diskPath << std::endl;
 }
 
+/**
+ * @brief Updates the properties of a mounted disk
+ * 
+ * This function forces Windows to re-read the disk properties after changes
+ * have been made. It is typically called after writing data to the disk to
+ * ensure Windows recognizes the changes. The function:
+ * 1. Opens the disk with read/write access
+ * 2. Sends an IOCTL to update disk properties
+ * 3. Handles any errors that occur during the process
+ * 
+ * @param diskPath Path to the mounted disk
+ * @throws std::runtime_error if the update operation fails
+ */
 void UpdateDiskProperties(std::wstring diskPath)
 {
     // Initialize a variable to receive the number of bytes returned by DeviceIoControl.
